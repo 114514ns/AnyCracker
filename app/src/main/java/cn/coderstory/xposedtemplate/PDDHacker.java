@@ -43,5 +43,16 @@ public class PDDHacker implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
+        XposedHelpers.findAndHookMethod("com.rdbookl.booknie.model.remote.CofigModel$DataBean", classLoader, "getFree_time", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+                param.setResult(1145141);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+            }
+        });
     }
 }
