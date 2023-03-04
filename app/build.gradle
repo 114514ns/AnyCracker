@@ -17,7 +17,7 @@ android {
         release {
             shrinkResources true
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
         }
     }
     lintOptions {
@@ -34,4 +34,9 @@ android {
 
 dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
+    //implementation 'com.alibaba.fastjson2:fastjson2:2.0.22'
+
+    // Java language implementation
+    implementation("androidx.core:core:1.9.0")
+
 }
