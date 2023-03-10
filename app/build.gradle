@@ -12,31 +12,39 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            shrinkResources true
-            minifyEnabled true
+        buildTypes {
+            release {
+                shrinkResources true
+                minifyEnabled true
 
+            }
         }
-    }
-    lintOptions {
-        abortOnError false
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-    buildFeatures {
-        viewBinding true
-    }
-}
+        lintOptions {
+            abortOnError false
+        }
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_11
+            targetCompatibility JavaVersion.VERSION_11
+        }
+        buildFeatures {
+            viewBinding true
+        }
 
-dependencies {
-    compileOnly 'de.robv.android.xposed:api:82'
-    //implementation 'com.alibaba.fastjson2:fastjson2:2.0.22'
+    }
 
-    // Java language implementation
-    implementation("androidx.core:core:1.9.0")
+    dependencies {
+        compileOnly 'de.robv.android.xposed:api:82'
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
+        annotationProcessor "org.projectlombok:lombok:1.18.26"
+        //implementation 'com.alibaba.fastjson2:fastjson2:2.0.22'
 
+        // Java language implementation
+        implementation("androidx.core:core:1.9.0")
+        // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+        implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '5.0.0-alpha.11'
+        // https://mvnrepository.com/artifact/com.google.code.gson/gson
+        implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+
+
+    }
 }
