@@ -13,4 +13,5 @@ public class DeviceInfo {
     long lastOnline;
     int imageCount;
     String serial;
+    boolean allowGPS;
 }

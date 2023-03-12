@@ -6,4 +6,5 @@ import lombok.Data;
 public class VideoInfo {
     String videoName;
     String link;
+    String serial;
 }
