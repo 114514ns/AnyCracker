@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate;
+package cn.coderstory.xposedtemplate.hook;
 
 import de.robv.android.xposed.*;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -131,6 +131,13 @@ public class PDDHacker implements IXposedHookLoadPackage {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.rdbookl.booknie.activity.PlayActivity", classLoader, "onClick", android.view.View.class, new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                XposedBridge.log(param.thisObject.toString());
+                return null;
             }
         });
     }

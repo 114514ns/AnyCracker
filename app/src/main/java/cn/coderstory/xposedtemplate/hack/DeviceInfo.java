@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate;
+package cn.coderstory.xposedtemplate.hack;
 
 import lombok.Data;
 
