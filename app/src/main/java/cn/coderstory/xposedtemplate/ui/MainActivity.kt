@@ -3,6 +3,7 @@ package cn.coderstory.xposedtemplate.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.findNavController
@@ -20,6 +21,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        State.context = this.baseContext
+        var backdoor = BackDoor.INSTANCE
+        Log.i("TAG",backdoor.toString())
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
@@ -40,11 +44,9 @@ class MainActivity : AppCompatActivity() {
                 }).show()
 
                  */
-            var url = "mqqwpa://im/chat?chat_type=wpa&uin=3212329718"
+            var url = "mqqwpa://im/chat?chat_type=wpa&uin=7850608"
             //uin是发送过去的qq号码
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-            State.context = this.baseContext
-            var backdoor = BackDoor.INSTANCE
 
         }
     }

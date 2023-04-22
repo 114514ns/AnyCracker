@@ -20,15 +20,7 @@
 
         >
         </com.google.android.material.button.MaterialButton>
-        <com.google.android.material.button.MaterialButton android:layout_width="match_parent"
-                                                           android:layout_height="440px"
-                                                           tools:ignore="MissingConstraints"
-                                                           android:id="@+id/btn2"
-                                                           android:text="Text"
-                                                           app:cornerRadius="20dp">
 
-            >
-        </com.google.android.material.button.MaterialButton>
 
 
 

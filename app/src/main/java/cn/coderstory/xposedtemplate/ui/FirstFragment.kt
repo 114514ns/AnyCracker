@@ -31,7 +31,12 @@ class FirstFragment : Fragment() {
     ): View? {
 
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
-        Thread.sleep(1000)
+        while (true) {
+            if (!State.notice.equals("")) {
+                break
+            }
+            Thread.sleep(20)
+        }
         var dialog = MaterialAlertDialogBuilder(requireContext())
             .setTitle("标题")
             .setMessage(State.notice)
