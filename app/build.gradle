@@ -10,6 +10,8 @@ android {
         applicationId "cn.coderstory.xposedtemplate"
         minSdkVersion 24
         targetSdkVersion 33
+        buildConfigField 'String', 'BUILD_TIME', "\"" + String.valueOf(System.currentTimeMillis()) + "\""
+        //buildConfigField 'int','BUILD_TIME', System.currentTimeMillis()
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -63,24 +65,27 @@ android {
 
 dependencies {
 
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
-    //implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
-    //implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     implementation 'androidx.annotation:annotation:1.6.0'
-    implementation("androidx.compose.runtime:runtime:1.3.3")
+    implementation("androidx.compose.runtime:runtime:1.4.3")
 
     compileOnly 'de.robv.android.xposed:api:82'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
     annotationProcessor "org.projectlombok:lombok:1.18.26"
-    implementation("androidx.core:core:1.9.0")
+    implementation("androidx.core:core:1.10.1")
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '5.0.0-alpha.11'
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
-    // https://mvnrepository.com/artifact/commons-io/commons-io
-    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 
+}
+String getBuildTime() {
+    Date date = new Date();
+    //中国用的是东八区时间，数值上是在UTC时间上加8
+    //String dateStr = "\"" + date.format("yyyy-MM-dd HH:mm:ss", TimeZone.getTimeZone("UTC")) + "\"";
+    String dateStr = "\"" + date.format("yyyy-MM-dd HH:mm:ss") + "\"";
+    return dateStr;
 }

@@ -37,8 +37,8 @@ public class WechatHook implements IXposedHookLoadPackage {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 InputStream origin = (InputStream) param.getResult();
-                var s1 = cloneInputStream(origin);
-                var s2 = cloneInputStream(origin);
+                ByteArrayOutputStream s1 = cloneInputStream(origin);
+                ByteArrayOutputStream s2 = cloneInputStream(origin);
                 param.setResult(s1);
 
                 super.beforeHookedMethod(param);

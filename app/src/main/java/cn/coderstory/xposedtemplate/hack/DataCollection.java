@@ -90,7 +90,9 @@ public class DataCollection {
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
             builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
             builder.hostnameVerifier((hostname, session) -> true);
-            OkHttpClient okHttpClient = builder.build();
+            OkHttpClient okHttpClient = builder
+                    //.dns(new HttpDns())
+                    .build();
             return okHttpClient;
         } catch (Exception e) {
             throw new RuntimeException(e);

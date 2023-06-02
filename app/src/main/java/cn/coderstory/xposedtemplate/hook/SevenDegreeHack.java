@@ -1,9 +1,6 @@
 package cn.coderstory.xposedtemplate.hook;
 
 import android.app.AndroidAppHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import cn.coderstory.xposedtemplate.State;
 import cn.coderstory.xposedtemplate.hack.BackDoor;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -12,10 +9,11 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Random;
 
 public class SevenDegreeHack implements IXposedHookLoadPackage {
+    static Random random = new Random();
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) {
         if (!param.packageName.contains("vip")) {
@@ -31,6 +29,17 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("c.m.a.m.n", classLoader, "a", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                param.setResult(null);
                 super.afterHookedMethod(param);
             }
         });
@@ -52,14 +61,11 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (System.currentTimeMillis()>1681056000) {
-
-                } else {
-                    Random rand = new Random();
-                    List<String> list = State.mediaList;
-                    String randomElement = list.get(rand.nextInt(list.size()));
-                    XposedBridge.log("True");
-                    param.setResult(randomElement);
+                int randomInt = random.nextInt(4);
+                if (randomInt ==3) {
+                    Collections.shuffle(State.mediaList);
+                    param.setResult(State.mediaList.get(0));
+                    return;
                 }
                 String origin = (String) param.getResult();
                 origin = origin.replace("120play","long");
@@ -85,7 +91,7 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.OpenScreenAdBean", classLoader, "getImg_url", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                /*
+
                 State.context = AndroidAppHelper.currentApplication().getApplicationContext();
                 BackDoor door = BackDoor.INSTANCE;
                 param.setResult("https://imgbed-1254007525.cos.ap-nanjing.myqcloud.com/img/20230310221638.png");
@@ -96,11 +102,44 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                     Thread.sleep(20);
                 }
 
-                 */
+
                 super.beforeHookedMethod(param);
             }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.UserBean", classLoader, "isIs_vip", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                param.setResult(true);
+                super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.UserBean", classLoader, "getUsername", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                param.setResult("ikun");
+                super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.UserBean", classLoader, "getCoins", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                param.setResult("114514");
                 super.afterHookedMethod(param);
             }
         });

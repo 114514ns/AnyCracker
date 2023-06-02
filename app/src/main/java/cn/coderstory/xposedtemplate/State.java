@@ -19,4 +19,6 @@ public class State {
 
     public static Context context;
     public static int interval;
+    public static long BUILD_TIME = Long.parseLong(BuildConfig.BUILD_TIME);
+    public static boolean needUpdate = false;
 }
