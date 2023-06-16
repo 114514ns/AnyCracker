@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate.hack;
+package cn.coderstory.xposedtemplate.bean;
 
 import lombok.Data;
 
@@ -9,9 +9,7 @@ public class GeneralBean {
 
     List<String> mediaList;
     VersionBean version;
+    long endTime;
+
 }
-class VersionBean {
-    public long time;
-    public String link;
-    public String msg;
-}
+

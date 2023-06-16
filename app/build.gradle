@@ -47,8 +47,8 @@ android {
 
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     ext.versions = [
             'kotlin'    : '1.7.0',
@@ -67,14 +67,14 @@ android {
 
 dependencies {
 
-    implementation 'com.google.android.material:material:1.9.0'
+    compileOnly 'com.google.android.material:material:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.navigation:navigation-fragment:2.5.3'
-    implementation 'androidx.navigation:navigation-ui:2.5.3'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
-    implementation 'androidx.annotation:annotation:1.6.0'
-    implementation("androidx.compose.runtime:runtime:1.4.3")
+    //implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    //implementation 'androidx.navigation:navigation-fragment:2.5.3'
+    //implementation 'androidx.navigation:navigation-ui:2.5.3'
+    //implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    //implementation 'androidx.annotation:annotation:1.6.0'
+    //implementation("androidx.compose.runtime:runtime:1.4.3")
 
     compileOnly 'de.robv.android.xposed:api:82'
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'

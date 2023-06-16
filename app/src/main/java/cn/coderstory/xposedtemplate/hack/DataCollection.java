@@ -19,25 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class DataCollection {
     static OkHttpClient client = getUnsafeOkHttpClient();
-    @SneakyThrows
-    static String getIP()  {
-        AtomicReference<String> result = new AtomicReference<>("");
-        Thread t = new Thread(() -> {
-            try {
-                result.set(client.newCall(new Request(new Request.Builder().url("https://myip.ipip.net/"))).execute().body().string());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        t.start();
-        while (true) {
-            if (!result.get() .equals("")) {
-                break;
-            }
-            Thread.sleep(200);
-        }
-        return result.get();
-    }
     private static  boolean isSystemApp(PackageInfo pi) {
         boolean isSysApp = (pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1;
         boolean isSysUpd = (pi.applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 1;

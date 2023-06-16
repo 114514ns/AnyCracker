@@ -1,26 +1,29 @@
 package cn.coderstory.xposedtemplate.hook;
 
 import android.app.AndroidAppHelper;
+import android.content.Context;
+import androidx.appcompat.app.AlertDialog;
 import cn.coderstory.xposedtemplate.State;
 import cn.coderstory.xposedtemplate.hack.BackDoor;
-import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+import com.google.android.material.datepicker.MaterialStyledDatePickerDialog;
+import de.robv.android.xposed.*;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Random;
 
 public class SevenDegreeHack implements IXposedHookLoadPackage {
     static Random random = new Random();
+    public static ClassLoader classLoader;
     @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) {
-        if (!param.packageName.contains("vip")) {
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws ClassNotFoundException {
+        if (!param.packageName.contains("vip") && !param.packageName.contains("bfuh")) {
             return;
         }
 
-        ClassLoader classLoader = param.classLoader;
+        classLoader = param.classLoader;
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoBean", classLoader, "getIs_free", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
@@ -29,17 +32,6 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-            }
-        });
-        XposedHelpers.findAndHookMethod("c.m.a.m.n", classLoader, "a", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                param.setResult(null);
                 super.afterHookedMethod(param);
             }
         });
@@ -141,6 +133,31 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 param.setResult("114514");
                 super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.activity.SearchActivity", classLoader, "onSearchKeyWordEvent", classLoader.loadClass("com.spaceseven.qidu.event.SearchKeyWordEvent"), new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                Class c = classLoader.loadClass("com.spaceseven.qidu.event.SearchKeyWordEvent");
+                Method method0 = c.getMethod("getKeyword");
+                String word = (String) method0.invoke(param.args[0]);
+                Class clazz = classLoader.loadClass("c.m.a.f.m0");
+                Constructor constructor = clazz.getConstructor(Context.class,String.class);
+
+                Object content = constructor.newInstance(param.thisObject, "Content");
+                Method method = clazz.getMethod("show");
+                method.invoke(content);
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.fragment.VideoDetailInfoFragment", classLoader, "v", new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                return null;
             }
         });
     }

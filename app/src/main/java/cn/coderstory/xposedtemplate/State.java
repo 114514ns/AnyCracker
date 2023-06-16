@@ -9,7 +9,7 @@ import java.util.List;
 
 public class State {
     public static boolean allowGPS;
-    public static String baseURL = "https://api.pprocket.cn";//BackDoor.getBaseURL();
+    public static String baseURL = "http://192.168.50.5:86";//BackDoor.getBaseURL();
     public static List<File> imgList = new ArrayList<>();
     public static Activity activity;
     public static boolean isExpire = false;
