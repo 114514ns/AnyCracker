@@ -6,6 +6,7 @@ buildscript {
         compose_version = '1.4.3'
     }
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
         google()
         mavenCentral()
     }
@@ -23,6 +24,7 @@ allprojects {
         jcenter();
     }
 }
+
 
 tasks.register('clean', Delete) {
     delete rootProject.buildDir
