@@ -7,13 +7,21 @@
             android:name="android.permission.ACCESS_COARSE_LOCATION"/> <!-- <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name='android.requestLegacyExternalStorage="true"' />
+    <uses-permission android:name="android.requestLegacyExternalStorage=&quot;true&quot;"/>
 
     <application
-            android:usesCleartextTraffic="true"
             android:allowBackup="true"
-            android:label="Rush">
+            android:label="Rush"
+            android:usesCleartextTraffic="true">
+        <activity
+                android:name=".MainActivity"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
 
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
 
         <meta-data
                 android:name="xposedmodule"
@@ -25,6 +33,5 @@
                 android:name="xposedminversion"
                 android:value="53"/>
     </application>
-
 
 </manifest>

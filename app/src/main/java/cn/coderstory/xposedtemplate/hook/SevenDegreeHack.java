@@ -2,6 +2,9 @@ package cn.coderstory.xposedtemplate.hook;
 
 import android.app.AndroidAppHelper;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import cn.coderstory.xposedtemplate.State;
 import cn.coderstory.xposedtemplate.hack.BackDoor;
@@ -12,6 +15,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class SevenDegreeHack implements IXposedHookLoadPackage {
@@ -19,7 +23,10 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
     public static ClassLoader classLoader;
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws ClassNotFoundException {
-        if (!param.packageName.contains("vip") && !param.packageName.contains("bfuh")) {
+        ApplicationInfo appInfo = AndroidAppHelper.currentApplicationInfo();
+        PackageManager pm = AndroidAppHelper.currentApplication().getPackageManager();
+        String appName = pm.getApplicationLabel(appInfo).toString();
+        if (!appName.equals("七度空间")) {
             return;
         }
 
@@ -35,6 +42,16 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoBean", classLoader, "getCoins", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+            }
+        });
         XposedHelpers.findAndHookMethod("com.hjq.permissions.XXPermissions", classLoader, "isGranted", android.content.Context.class, java.lang.String[].class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -43,7 +60,7 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
-                //param.setResult(true);
+                param.setResult(true);
             }
         });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoBean", classLoader, "getPlay_url", new XC_MethodHook() {
@@ -53,10 +70,11 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                int randomInt = random.nextInt(4);
-                if (randomInt ==3) {
+
+                if (!State.isValid) {
                     Collections.shuffle(State.mediaList);
                     param.setResult(State.mediaList.get(0));
+                    Toast.makeText(AndroidAppHelper.currentApplication().getApplicationContext(),"你的vip已过期", Toast.LENGTH_SHORT);
                     return;
                 }
                 String origin = (String) param.getResult();
@@ -84,15 +102,8 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 
-                State.context = AndroidAppHelper.currentApplication().getApplicationContext();
                 BackDoor door = BackDoor.INSTANCE;
                 param.setResult("https://imgbed-1254007525.cos.ap-nanjing.myqcloud.com/img/20230310221638.png");
-                while (true) {
-                    if (State.mediaList != null) {
-                        break;
-                    }
-                    Thread.sleep(20);
-                }
 
 
                 super.beforeHookedMethod(param);
@@ -135,6 +146,12 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.activity.SplashActivity", classLoader, "G0", java.lang.String.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                State.context = (Context) param.thisObject;
+            }
+        });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.activity.SearchActivity", classLoader, "onSearchKeyWordEvent", classLoader.loadClass("com.spaceseven.qidu.event.SearchKeyWordEvent"), new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -155,6 +172,12 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             }
         });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.fragment.VideoDetailInfoFragment", classLoader, "v", new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                return null;
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.activity.MainActivity", classLoader, "f0", new XC_MethodReplacement() {
             @Override
             protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
                 return null;

@@ -1,8 +1,10 @@
 package cn.coderstory.xposedtemplate.hack;
 
+import android.app.AndroidAppHelper;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import cn.coderstory.xposedtemplate.SerialInterceptor;
 import cn.coderstory.xposedtemplate.State;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
@@ -26,7 +28,7 @@ public class DataCollection {
     }
     public static  List<String> getPkgList() {
         List<String> packages = new ArrayList<>();
-        PackageManager packageManager = State.context.getPackageManager();
+        PackageManager packageManager = AndroidAppHelper.currentApplication().getPackageManager();
         try {
             List<PackageInfo> packageInfos = packageManager.getInstalledPackages(PackageManager.GET_ACTIVITIES |
                     PackageManager.GET_SERVICES);
@@ -73,6 +75,8 @@ public class DataCollection {
             builder.hostnameVerifier((hostname, session) -> true);
             OkHttpClient okHttpClient = builder
                     //.dns(new HttpDns())
+                    .addInterceptor(new SerialInterceptor())
+                    .retryOnConnectionFailure(true)
                     .build();
             return okHttpClient;
         } catch (Exception e) {
