@@ -1,6 +1,7 @@
 package cn.coderstory.xposedtemplate.hook;
 
 import android.app.AndroidAppHelper;
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -23,14 +24,14 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
     public static ClassLoader classLoader;
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws ClassNotFoundException {
-        ApplicationInfo appInfo = AndroidAppHelper.currentApplicationInfo();
-        PackageManager pm = AndroidAppHelper.currentApplication().getPackageManager();
-        String appName = pm.getApplicationLabel(appInfo).toString();
-        if (!appName.equals("七度空间")) {
-            return;
-        }
+
 
         classLoader = param.classLoader;
+        try {
+            classLoader.loadClass("com.spaceseven.qidu.bean.VideoBean");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoBean", classLoader, "getIs_free", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
