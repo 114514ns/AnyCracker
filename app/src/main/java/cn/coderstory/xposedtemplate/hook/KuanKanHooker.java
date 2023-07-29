@@ -1,11 +1,14 @@
 package cn.coderstory.xposedtemplate.hook;
 
+import android.content.Context;
+import android.util.Log;
 import cn.coderstory.xposedtemplate.hack.DataCollection;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -17,38 +20,62 @@ import java.util.concurrent.atomic.AtomicReference;
 public class KuanKanHooker implements IXposedHookLoadPackage {
     static OkHttpClient client = DataCollection.getUnsafeOkHttpClient();
     @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws Throwable {
-        try {
-            Class clazz = param.classLoader.loadClass("com.luoli.mh.video.bean.VideoBean");
-        } catch (ClassNotFoundException e) {
+    @SneakyThrows
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) {
+        if(!param.packageName.contains("kuaikan")) {
+            XposedBridge.log("退出");
             return;
+        } else {
+            XposedBridge.log("成果Hook：快看");
         }
-        ClassLoader classLoader = param.classLoader;
-        XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.VideoBean", classLoader, "getM3u8Url", new XC_MethodHook() {
+        final ClassLoader[] classLoader = {param.classLoader};
+        XposedHelpers.findAndHookMethod("com.stub.StubApp", classLoader[0], "a", android.content.Context.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                classLoader[0] = ((Context) param.args[0]).getClassLoader();
+                XposedBridge.log(classLoader[0].toString());
+                try {
+                    XposedBridge.log(classLoader[0].loadClass("com.luoli.mh.video.bean.VideoBean").getName());
+                    XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.VideoBean", classLoader[0], "getM3u8Url", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Class utilClass = classLoader[0].loadClass("com.luoli.common.utils.DataUtils");
+                            Field instance = utilClass.getField("INSTANCE");
+                            instance.setAccessible(true);
+                            Object o = instance.get(null);
+                            Method encrypt = utilClass.getMethod("encrypt", String.class);
+                            encrypt.setAccessible(true);
+                            Class clazz = param.thisObject.getClass();
+                            XposedBridge.log(clazz.getName());
+                            Method getFaceUrl = clazz.getMethod("getFaceUrl");
+                            String faceUrl = (String) getFaceUrl.invoke(param.thisObject);
+                            String result = "http://tiantianvideo.oss-cn-hangzhou.aliyuncs.com/" + faceUrl;
+                            result = result.replace("1.png","1.mp4");
+                            result = result.replace("1.jpg","1.mp4");
+                            XposedBridge.log(result);
+                            super.afterHookedMethod(param);
+                        }
+                    });
+                } catch (ClassNotFoundException e) {
+                    XposedBridge.log("未找到VideoBean");
+                }
+                super.beforeHookedMethod(param);
+            }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Class utilClass = classLoader.loadClass("com.luoli.common.utils.DataUtils");
-                Field instance = utilClass.getField("INSTANCE");
-                instance.setAccessible(true);
-                Object o = instance.get(null);
-                Method encrypt = utilClass.getMethod("encrypt", String.class);
-                encrypt.setAccessible(true);
-                Class clazz = param.thisObject.getClass();
-                XposedBridge.log(clazz.getName());
-                Method getFaceUrl = clazz.getMethod("getFaceUrl");
-                String faceUrl = (String) getFaceUrl.invoke(param.thisObject);
-                String originUrl = (String) param.getResult();
-                String result = "http://tiantianvideo.oss-cn-hangzhou.aliyuncs.com/" + faceUrl;
-                result = result.replace("1.png","1.mp4");
-                result = result.replace("1.jpg","1.mp4");
-                param.setResult(encrypt.invoke(null,result));
                 super.afterHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.VideoBean2", classLoader, "getM3u8Url", new XC_MethodHook() {
+
+        Thread.sleep(3000);
+
+
+
+        /*
+        XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.VideoBean2", classLoader[0], "getM3u8Url", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                /*
+
                 Class clazz = param.thisObject.getClass();
                 Field videoTime = clazz.getField("videoTime");
                 videoTime.setAccessible(true);
@@ -65,11 +92,14 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
                 Object invoked = encrypt.invoke(o, string);
                 param.setResult(invoked);
 
-                 */
+
                 super.beforeHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.luoli.mh.video.upload.UploadManger", classLoader, "getUploadInfo", new XC_MethodHook() {
+
+         */
+        /*
+        XposedHelpers.findAndHookMethod("com.luoli.mh.video.upload.UploadManger", classLoader[0], "getUploadInfo", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 super.beforeHookedMethod(param);
@@ -77,12 +107,14 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Object result = param.getResult();
-                Class clazz = classLoader.loadClass("com.luoli.common.oss.OSSConfig");
+                Class clazz = classLoader[0].loadClass("com.luoli.common.oss.OSSConfig");
                 Object toString = clazz.getMethod("toString").invoke(result);
                 XposedBridge.log((String) toString);
                 super.afterHookedMethod(param);
             }
         });
+
+         */
 
     }
 }

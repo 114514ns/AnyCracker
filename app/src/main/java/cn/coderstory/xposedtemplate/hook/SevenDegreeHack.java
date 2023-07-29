@@ -43,21 +43,7 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoBean", classLoader, "getCoins", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-            }
-        });
         XposedHelpers.findAndHookMethod("com.hjq.permissions.XXPermissions", classLoader, "isGranted", android.content.Context.class, java.lang.String[].class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
@@ -65,10 +51,6 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             }
         });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoBean", classLoader, "getPlay_url", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
@@ -90,10 +72,6 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
         });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoBean", classLoader, "getPay_url_full", new XC_MethodHook() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
-            @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 XposedBridge.log("Full :" + param.getResult());
                 super.afterHookedMethod(param);
@@ -103,22 +81,12 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 
-                BackDoor door = BackDoor.INSTANCE;
+                //BackDoor door = BackDoor.INSTANCE;
                 param.setResult("https://imgbed-1254007525.cos.ap-nanjing.myqcloud.com/img/20230310221638.png");
-
-
                 super.beforeHookedMethod(param);
-            }
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
             }
         });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.UserBean", classLoader, "isIs_vip", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 param.setResult(true);
@@ -127,20 +95,12 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
         });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.UserBean", classLoader, "getUsername", new XC_MethodHook() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
-            @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 param.setResult("ikun");
                 super.afterHookedMethod(param);
             }
         });
         XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.UserBean", classLoader, "getCoins", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 param.setResult("114514");
@@ -166,22 +126,6 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                 Method method = clazz.getMethod("show");
                 method.invoke(content);
                 super.beforeHookedMethod(param);
-            }
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.fragment.VideoDetailInfoFragment", classLoader, "v", new XC_MethodReplacement() {
-            @Override
-            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-                return null;
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.activity.MainActivity", classLoader, "f0", new XC_MethodReplacement() {
-            @Override
-            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-                return null;
             }
         });
     }
