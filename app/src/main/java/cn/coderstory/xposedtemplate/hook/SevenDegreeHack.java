@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Random;
 
 public class SevenDegreeHack implements IXposedHookLoadPackage {
-    static Random random = new Random();
     public static ClassLoader classLoader;
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws ClassNotFoundException {
@@ -41,6 +40,13 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.PostListBean", classLoader, "getType", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+                param.setResult(1);
             }
         });
         XposedHelpers.findAndHookMethod("com.hjq.permissions.XXPermissions", classLoader, "isGranted", android.content.Context.class, java.lang.String[].class, new XC_MethodHook() {

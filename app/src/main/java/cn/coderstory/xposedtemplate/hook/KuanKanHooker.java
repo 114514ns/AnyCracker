@@ -15,6 +15,8 @@ import okhttp3.Request;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class KuanKanHooker implements IXposedHookLoadPackage {
@@ -29,7 +31,7 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
             XposedBridge.log("成果Hook：快看");
         }
         final ClassLoader[] classLoader = {param.classLoader};
-        XposedHelpers.findAndHookMethod("com.stub.StubApp", classLoader[0], "a", android.content.Context.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.stub.StubApp", classLoader[0], "a", Context.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 classLoader[0] = ((Context) param.args[0]).getClassLoader();
@@ -59,15 +61,22 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
                 } catch (ClassNotFoundException e) {
                     XposedBridge.log("未找到VideoBean");
                 }
+                XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.GroupBean", classLoader[0], "getId", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        String name = param.thisObject.getClass().getName();
+                        XposedBridge.log("长度：  " + Thread.currentThread().getStackTrace().length);
+                        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+                            XposedBridge.log(element.getClassName() + "     " + element.getMethodName() + "   ");
+
+                        }
+
+                        super.beforeHookedMethod(param);
+                    }
+                });
                 super.beforeHookedMethod(param);
             }
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-            }
         });
-
-        Thread.sleep(3000);
 
 
 
