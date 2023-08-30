@@ -1,5 +1,7 @@
-package cn.coderstory.xposedtemplate.hook;
+package cn.coderstory.anycracker.hook;
 
+import android.app.AndroidAppHelper;
+import android.content.Context;
 import com.google.gson.Gson;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -17,15 +19,20 @@ public class ZhihuHook implements IXposedHookLoadPackage {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws Throwable {
-        Map<String,String> map = new HashMap<>();
-        ClassLoader classLoader = param.classLoader;
-        File file = new File("map.json");
-        Gson gson = new Gson();
-        FileWriter fileWriter = new FileWriter(file);
-        XposedBridge.log(file.getAbsolutePath());
         if(!param.packageName.contains("zhihu")) {
             return;
         }
+        Map<String,String> map = new HashMap<>();
+        ClassLoader classLoader = param.classLoader;
+        Context context = AndroidAppHelper.currentApplication().getApplicationContext();
+        File file = new File(context.getDataDir(),"map.json");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        Gson gson = new Gson();
+        XposedBridge.log(file.getAbsolutePath());
+        FileWriter fileWriter = new FileWriter(file);
+
         XposedHelpers.findAndHookMethod("com.secneo.apkwrapper.H", classLoader, "d", java.lang.String.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {

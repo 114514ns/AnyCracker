@@ -1,23 +1,18 @@
-package cn.coderstory.xposedtemplate.hack;
+package cn.coderstory.anycracker.hack;
 
 import android.app.AndroidAppHelper;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import cn.coderstory.xposedtemplate.SerialInterceptor;
-import cn.coderstory.xposedtemplate.State;
-import lombok.SneakyThrows;
+import cn.coderstory.anycracker.SerialInterceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class DataCollection {
     static OkHttpClient client = getUnsafeOkHttpClient();

@@ -1,6 +1,7 @@
-cn.coderstory.xposedtemplate.hook.SevenDegreeHack
-cn.coderstory.xposedtemplate.hook.PDDHacker
-cn.coderstory.xposedtemplate.hook.NineOneHack
-cn.coderstory.xposedtemplate.hook.PSiteHack
-cn.coderstory.xposedtemplate.hook.JDHack
-cn.coderstory.xposedtemplate.hook.KuanKanHooker
+cn.coderstory.anycracker.hook.SevenDegreeHack
+cn.coderstory.anycracker.hook.PDDHacker
+cn.coderstory.anycracker.hook.NineOneHack
+cn.coderstory.anycracker.hook.PSiteHack
+cn.coderstory.anycracker.hook.JDHack
+cn.coderstory.anycracker.hook.KuanKanHooker
+cn.coderstory.anycracker.hook.ZhihuHook

@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate;
+package cn.coderstory.anycracker;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,7 +19,7 @@ public class State {
 
     public static Context context;
     public static int interval;
-    public static long BUILD_TIME = Long.parseLong(BuildConfig.BUILD_TIME);
+    public static long BUILD_TIME = -1;
     public static boolean needUpdate = false;
     public static boolean isValid = true;
 }

@@ -1,8 +1,8 @@
-package cn.coderstory.xposedtemplate.hook;
+package cn.coderstory.anycracker.hook;
 
 import android.app.Activity;
 import android.os.Environment;
-import cn.coderstory.xposedtemplate.State;
+import cn.coderstory.anycracker.State;
 import de.robv.android.xposed.*;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.SneakyThrows;

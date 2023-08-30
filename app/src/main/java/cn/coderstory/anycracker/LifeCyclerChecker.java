@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate;
+package cn.coderstory.anycracker;
 
 import android.util.Log;
 import androidx.lifecycle.Lifecycle;

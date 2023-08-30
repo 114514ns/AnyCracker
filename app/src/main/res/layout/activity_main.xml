@@ -6,5 +6,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.MainActivity">
+    <Button android:layout_width="12dp" android:layout_height="wrap_content">
+
+    </Button>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

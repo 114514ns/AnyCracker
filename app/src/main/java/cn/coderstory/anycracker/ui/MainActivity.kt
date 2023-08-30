@@ -1,8 +1,11 @@
-package cn.coderstory.xposedtemplate.ui
+package cn.coderstory.anycracker.ui
 
+import android.app.Dialog
+import android.content.res.Resources.Theme
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import cn.coderstory.xposedtemplate.R
+import androidx.core.content.res.ResourcesCompat.ThemeCompat
+import cn.pprocket.anycracker.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

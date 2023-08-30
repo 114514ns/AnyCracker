@@ -1,7 +1,6 @@
-package cn.coderstory.xposedtemplate;
+package cn.coderstory.anycracker;
 
-import cn.coderstory.xposedtemplate.hack.BackDoor;
-import cn.coderstory.xposedtemplate.hack.DataCollection;
+import cn.coderstory.anycracker.hack.BackDoor;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;

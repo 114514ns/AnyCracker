@@ -1,7 +1,6 @@
-package cn.coderstory.xposedtemplate.hack;
+package cn.coderstory.anycracker.hack;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AndroidAppHelper;
 import android.content.Context;
@@ -11,10 +10,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.provider.Settings;
-import cn.coderstory.xposedtemplate.State;
-import cn.coderstory.xposedtemplate.bean.GeneralBean;
-import cn.coderstory.xposedtemplate.bean.UserBean;
-import cn.coderstory.xposedtemplate.ui.Dialog;
+import cn.coderstory.anycracker.State;
+import cn.coderstory.anycracker.bean.GeneralBean;
+import cn.coderstory.anycracker.bean.UserBean;
+import cn.coderstory.anycracker.ui.Dialog;
 import com.google.gson.Gson;
 import de.robv.android.xposed.XposedBridge;
 import lombok.SneakyThrows;

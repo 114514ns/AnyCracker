@@ -1,7 +1,7 @@
-package cn.coderstory.xposedtemplate.ui;
+package cn.coderstory.anycracker.ui;
 
 import android.content.Context;
-import cn.coderstory.xposedtemplate.hook.SevenDegreeHack;
+import cn.coderstory.anycracker.hook.SevenDegreeHack;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Constructor;

@@ -1,23 +1,18 @@
-package cn.coderstory.xposedtemplate.hook;
+package cn.coderstory.anycracker.hook;
 
 import android.app.AndroidAppHelper;
-import android.app.Application;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
-import cn.coderstory.xposedtemplate.State;
-import cn.coderstory.xposedtemplate.hack.BackDoor;
-import com.google.android.material.datepicker.MaterialStyledDatePickerDialog;
-import de.robv.android.xposed.*;
+import cn.coderstory.anycracker.State;
+import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 public class SevenDegreeHack implements IXposedHookLoadPackage {
     public static ClassLoader classLoader;

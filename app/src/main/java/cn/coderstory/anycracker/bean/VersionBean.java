@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate.bean;
+package cn.coderstory.anycracker.bean;
 
 public class VersionBean {
     public long time;

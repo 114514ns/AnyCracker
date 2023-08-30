@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate.hook;
+package cn.coderstory.anycracker.hook;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -7,9 +7,6 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
 public class WechatHook implements IXposedHookLoadPackage {

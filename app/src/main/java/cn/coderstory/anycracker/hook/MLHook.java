@@ -1,4 +1,4 @@
-package cn.coderstory.xposedtemplate.hook;
+package cn.coderstory.anycracker.hook;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
