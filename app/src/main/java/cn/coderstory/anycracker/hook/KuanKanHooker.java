@@ -1,7 +1,14 @@
 package cn.coderstory.anycracker.hook;
 
+import android.app.AndroidAppHelper;
+import android.app.Application;
 import android.content.Context;
+import android.os.Looper;
+import android.widget.Toast;
 import cn.coderstory.anycracker.hack.DataCollection;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.dialog.MaterialDialogs;
+import com.google.android.material.snackbar.Snackbar;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -15,6 +22,17 @@ import java.lang.reflect.Method;
 
 public class KuanKanHooker implements IXposedHookLoadPackage {
     static OkHttpClient client = DataCollection.getUnsafeOkHttpClient();
+    static ClassLoader classLoader;
+    private Application getContext() {
+        try {
+            Class clz = classLoader.loadClass("com.luoli.common.app.BaseApplication");
+            Field field = clz.getDeclaredField("context");
+            field.setAccessible(true);
+            return (Application) field.get(null);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     @SneakyThrows
@@ -25,11 +43,11 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
         } else {
             XposedBridge.log("成果Hook：快看");
         }
-        final ClassLoader[] classLoader = {param.classLoader};
-        XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.VideoBean", classLoader[0], "getM3u8Url", new XC_MethodHook() {
+        classLoader = param.classLoader;
+        XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.VideoBean", classLoader, "getM3u8Url", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Class<?> utilClass = classLoader[0].loadClass("com.luoli.common.utils.DataUtils");
+                Class<?> utilClass = classLoader.loadClass("com.luoli.common.utils.DataUtils");
                 Field instance = utilClass.getField("INSTANCE");
                 instance.setAccessible(true);
                 Object o = instance.get(null);
@@ -46,7 +64,7 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.luoli.common.oss.OSSManger", classLoader[0], "init", classLoader[0].loadClass("com.luoli.common.oss.OSSConfig"), new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.luoli.common.oss.OSSManger", classLoader, "init", classLoader.loadClass("com.luoli.common.oss.OSSConfig"), new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 super.beforeHookedMethod(param);
@@ -58,26 +76,29 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.luoli.common.config.ConfigManger", classLoader[0], "getConfig", new XC_MethodHook() {@Override
+        XposedHelpers.findAndHookMethod("com.luoli.common.config.ConfigManger", classLoader, "getConfig", new XC_MethodHook() {@Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 //XposedBridge.log(param.getResult().toString());
                 super.afterHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.luoli.common.config.ConfigManger", classLoader[0], "getSalt", new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.luoli.common.config.ConfigManger", classLoader, "getSalt", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 //XposedBridge.log(param.getResult().toString());
                 super.afterHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.luoli.common.network.interceptor.EncryptInterceptor", classLoader[0], "convertReqParams", java.lang.String.class, int.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
+        XposedHelpers.findAndHookMethod("com.luoli.common.network.interceptor.EncryptInterceptor", classLoader, "convertReqParams", java.lang.String.class, int.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (param.args[0].toString().contains("groupId")) {
+                    new Thread(() -> {
+                        Looper.prepare();
+                        Toast.makeText(AndroidAppHelper.currentApplication().getApplicationContext(),param.args[0].toString(),Toast.LENGTH_SHORT).show();
+                    }).start();
+                }
+
                 super.afterHookedMethod(param);
             }
         });

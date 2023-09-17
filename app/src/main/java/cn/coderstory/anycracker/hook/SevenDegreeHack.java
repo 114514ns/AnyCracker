@@ -4,10 +4,7 @@ import android.app.AndroidAppHelper;
 import android.content.Context;
 import android.widget.Toast;
 import cn.coderstory.anycracker.State;
-import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.*;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import java.lang.reflect.Constructor;
@@ -64,10 +61,8 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                 String origin = (String) param.getResult();
                 origin = origin.replace("120play","long");
                 origin = origin.replace("10play","long");
-                XposedBridge.log("Origin:     " + origin);
                 param.setResult(origin);
-                XposedBridge.log("PlayURL:      " + param.getResult());
-
+                XposedBridge.log(param.thisObject.toString());
                 super.afterHookedMethod(param);
             }
         });
@@ -84,6 +79,7 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
 
                 //BackDoor door = BackDoor.INSTANCE;
                 param.setResult("https://imgbed-1254007525.cos.ap-nanjing.myqcloud.com/img/20230310221638.png");
+
                 super.beforeHookedMethod(param);
             }
         });
@@ -127,6 +123,36 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                 Method method = clazz.getMethod("show");
                 method.invoke(content);
                 super.beforeHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.bean.VideoDetailBean", classLoader, "getRow", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                XposedBridge.log(param.getResult().toString());
+                super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.activity.MainActivity", classLoader, "f0", new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                return null;
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.activity.MainActivity", classLoader, "n0", new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                return null;
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.spaceseven.qidu.adapter.CommonPagerAdapter", classLoader, "getCount", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                super.afterHookedMethod(param);
             }
         });
     }
