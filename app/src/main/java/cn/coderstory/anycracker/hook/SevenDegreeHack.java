@@ -9,6 +9,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class SevenDegreeHack implements IXposedHookLoadPackage {
@@ -58,6 +59,9 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
                     Toast.makeText(AndroidAppHelper.currentApplication().getApplicationContext(),"你的vip已过期", Toast.LENGTH_SHORT);
                     return;
                 }
+                Class<?> clz = classLoader.loadClass("com.spaceseven.qidu.bean.VideoBean");
+                Method method = clz.getDeclaredMethod("getTitle");
+                XposedBridge.log(method.invoke(param.thisObject).toString());
                 String origin = (String) param.getResult();
                 origin = origin.replace("120play","long");
                 origin = origin.replace("10play","long");
@@ -153,6 +157,14 @@ public class SevenDegreeHack implements IXposedHookLoadPackage {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
                 super.afterHookedMethod(param);
+            }
+        });
+
+        XposedHelpers.findAndHookMethod("c.n.a.m.v0", classLoader, "c", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                //param.setResult("https://d1ety6ndl68bft.cloudfront.net/api.php");
             }
         });
     }

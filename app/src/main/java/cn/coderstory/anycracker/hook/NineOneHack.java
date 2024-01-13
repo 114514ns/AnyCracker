@@ -73,7 +73,7 @@ public class NineOneHack implements IXposedHookLoadPackage {
             }
         });
 
-        findAndHookMethod("com.aiqiyi.youtube.play.bean.response.VideoDetailBean", classLoader, "getIs_money", new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.aiqiyi.youtube.play.bean.response.VideoDetailBean", classLoader, "getIs_money", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 param.setResult("n");

@@ -10,6 +10,6 @@ public class GeneralBean {
     List<String> mediaList;
     VersionBean version;
     long endTime;
-
+    List<String> ignoreList;
 }
 
