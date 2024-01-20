@@ -14,11 +14,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class IJiangHook implements IXposedHookLoadPackage {
-    OkHttpClient client = new OkHttpClient();
+    static OkHttpClient client = new OkHttpClient();
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws Throwable {
         ClassLoader classLoader = param.classLoader;
+        try {
+            classLoader.loadClass("com.niming.weipa.ui.splash.SplashActivity");
+        } catch (Exception e) {
+            return;
+        }
 
         XposedHelpers.findAndHookMethod("com.niming.weipa.ui.splash.SplashActivity", classLoader, "j", new XC_MethodHook() { // Bypass root check
             @Override
@@ -40,36 +45,34 @@ public class IJiangHook implements IXposedHookLoadPackage {
                 Class clazz = classLoader.loadClass("com.niming.weipa.model.VideoInfo2");
                 Method getDuration = clazz.getDeclaredMethod("getDuration");
                 int length = (int) getDuration.invoke(thisObject) / 1000 / 10 + 1;
-                String url = "https://parser.ikuntech.xyz/parser?origin=" + origin + "&&count=" + length;
-                String string = "";
-                XposedBridge.log(url);
-                final boolean[] done = {false};
-                client.newCall(new Request.Builder().url(url).get().build()).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String string = response.body().string();
-                        XposedBridge.log(string);
-                        param.setResult(string);
-                        Uri uri = Uri.parse("https://tools.liumingye.cn/m3u8/#" + string);
-                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        AndroidAppHelper.currentApplication().getApplicationContext().startActivity(intent);
-                        done[0] = true;
-
-                    }
-                });
-                while (!done[0]) {
-                    Thread.sleep(20);
-                }
-
+                param.setResult(parser(length,origin));
                 super.afterHookedMethod(param);
             }
 
+        });
+        XposedHelpers.findAndHookMethod("com.niming.weipa.model.VideoDetails", classLoader, "getMu", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                String origin = (String) param.getResult();
+                Object thisObject = param.thisObject;
+                Class clazz = classLoader.loadClass("com.niming.weipa.model.VideoInfo2");
+                Method getDuration = clazz.getDeclaredMethod("getDuration");
+                int length = (int) getDuration.invoke(thisObject) / 1000 / 10 + 1;
+                param.setResult(parser(length,origin));
+                super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.niming.weipa.model.VideoDetails", classLoader, "getSmu", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                String origin = (String) param.getResult();
+                Object thisObject = param.thisObject;
+                Class clazz = classLoader.loadClass("com.niming.weipa.model.VideoInfo2");
+                Method getDuration = clazz.getDeclaredMethod("getDuration");
+                int length = (int) getDuration.invoke(thisObject) / 1000 / 10 + 1;
+                param.setResult(parser(length,origin));
+                super.afterHookedMethod(param);
+            }
         });
         XposedHelpers.findAndHookMethod("com.niming.weipa.widget.XVideoPlayer", classLoader, "c", int.class, new XC_MethodHook() {
             @Override
@@ -156,5 +159,41 @@ public class IJiangHook implements IXposedHookLoadPackage {
             }
         });
 
+    }
+    public static String parser(int length,String origin) {
+        String url = "https://parser.ikuntech.xyz/parser?origin=" + origin + "&&count=" + length;
+        final String[] string = {""};
+        XposedBridge.log(url);
+        final boolean[] done = {false};
+        client.newCall(new Request.Builder().url(url).get().build()).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                string[0] = response.body().string();
+                //XposedBridge.log(string);
+                //Uri uri = Uri.parse("https://tools.liumingye.cn/m3u8/#" + string);
+                //Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //AndroidAppHelper.currentApplication().getApplicationContext().startActivity(intent);
+                done[0] = true;
+            }
+        });
+        while (!done[0]) {
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return string[0];
+    }
+    public static void navigate(String link) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        AndroidAppHelper.currentApplication().getApplicationContext().startActivity(intent);
     }
 }
