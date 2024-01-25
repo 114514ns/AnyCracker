@@ -10,6 +10,11 @@ public class FiveOneComicHook implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) throws Throwable {
         ClassLoader classLoader = param.classLoader;
+        try {
+            classLoader.loadClass("c.h.a.e.g4");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
         XposedHelpers.findAndHookConstructor("c.h.a.e.g4", classLoader, boolean.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {

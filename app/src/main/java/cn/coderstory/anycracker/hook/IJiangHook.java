@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IJiangHook implements IXposedHookLoadPackage {
     static OkHttpClient client = new OkHttpClient();
@@ -50,6 +52,18 @@ public class IJiangHook implements IXposedHookLoadPackage {
             }
 
         });
+        XposedHelpers.findAndHookMethod("com.niming.weipa.model.VideoInfo2", classLoader, "getMu", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                String origin = (String) param.getResult();
+                Object thisObject = param.thisObject;
+                Class clazz = classLoader.loadClass("com.niming.weipa.model.VideoInfo2");
+                Method getDuration = clazz.getDeclaredMethod("getDuration");
+                int length = (int) getDuration.invoke(thisObject) / 1000 / 10 + 1;
+                param.setResult(parser(length,origin));
+                super.afterHookedMethod(param);
+            }
+        });
         XposedHelpers.findAndHookMethod("com.niming.weipa.model.VideoDetails", classLoader, "getMu", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -62,6 +76,7 @@ public class IJiangHook implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
+
         XposedHelpers.findAndHookMethod("com.niming.weipa.model.VideoDetails", classLoader, "getSmu", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -72,6 +87,45 @@ public class IJiangHook implements IXposedHookLoadPackage {
                 int length = (int) getDuration.invoke(thisObject) / 1000 / 10 + 1;
                 param.setResult(parser(length,origin));
                 super.afterHookedMethod(param);
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.niming.weipa.model.VideoDetails$VideoLine", classLoader, "getMu", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                System.out.println("param.getResult() = " + param.getResult());
+                if (cachePool.containsKey(param.getResult())) {
+                    param.setResult(cachePool.get(param.getResult()));
+                    return;
+                }
+                Object thisObject = param.thisObject;
+                Method getDuration = param.thisObject.getClass().getDeclaringClass().getDeclaredMethod("getDuration");
+                Method getSmu = param.thisObject.getClass().getDeclaringClass().getDeclaredMethod("getSmu");
+                param.setResult(parser((int )getDuration.invoke(thisObject),(String ) getSmu.invoke(thisObject)));
+
+            }
+        });
+        XposedHelpers.findAndHookMethod("com.shuyu.gsyvideoplayer.e.a", classLoader, "b", java.lang.String.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                System.out.println("param.args[0] = " + param.args[0]);
+            }
+        });
+
+        XposedHelpers.findAndHookMethod("com.niming.weipa.model.VideoDetails$VideoLine", classLoader, "getSmu", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                //System.out.println("param.getResult() = " + param.getResult());
+                if (cachePool.containsKey(param.getResult())) {
+                    param.setResult(cachePool.get(param.getResult()));
+                    return;
+                }
+                Object thisObject = param.thisObject;
+                //Method getDuration = param.thisObject.getClass().getDeclaringClass().getDeclaredMethod("getDuration");
+                //Method getSmu = param.thisObject.getClass().getDeclaringClass().getDeclaredMethod("getSmu");
+                //param.setResult(parser((int )getDuration.invoke(thisObject),(String ) getSmu.invoke(thisObject)));
+
             }
         });
         XposedHelpers.findAndHookMethod("com.niming.weipa.widget.XVideoPlayer", classLoader, "c", int.class, new XC_MethodHook() {
@@ -160,11 +214,15 @@ public class IJiangHook implements IXposedHookLoadPackage {
         });
 
     }
+    static Map<String,String> cachePool = new HashMap<>();
     public static String parser(int length,String origin) {
         String url = "https://parser.ikuntech.xyz/parser?origin=" + origin + "&&count=" + length;
         final String[] string = {""};
         XposedBridge.log(url);
         final boolean[] done = {false};
+        if (cachePool.containsKey(origin)) {
+            return cachePool.get(origin);
+        }
         client.newCall(new Request.Builder().url(url).get().build()).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -180,6 +238,7 @@ public class IJiangHook implements IXposedHookLoadPackage {
                 //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 //AndroidAppHelper.currentApplication().getApplicationContext().startActivity(intent);
                 done[0] = true;
+
             }
         });
         while (!done[0]) {
@@ -189,6 +248,7 @@ public class IJiangHook implements IXposedHookLoadPackage {
                 throw new RuntimeException(e);
             }
         }
+        cachePool.put(origin,string[0]);
         return string[0];
     }
     public static void navigate(String link) {
