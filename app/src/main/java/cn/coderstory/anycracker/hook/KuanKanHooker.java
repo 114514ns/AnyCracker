@@ -36,14 +36,14 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
     @Override
     @SneakyThrows
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam param) {
-        if (!param.packageName.contains("kuaikan")) {
-            XposedBridge.log("退出");
-            return;
-        } else {
-            XposedBridge.log("成果Hook：快看");
-        }
         classLoader = param.classLoader;
-        XposedHelpers.findAndHookMethod("com.luoli.mh.video.bean.VideoBean", classLoader, "getM3u8Url", new XC_MethodHook() {
+        try {
+            classLoader.loadClass("com.luoli.common.app.BaseApplication");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+        XposedBridge.log("成功Hook快看");
+        XposedHelpers.findAndHookMethod("m.h.mstfpl.duuaqq.yjscta.VideoBean", classLoader, "getM3u8Url", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Class<?> utilClass = classLoader.loadClass("com.luoli.common.utils.DataUtils");
@@ -84,32 +84,6 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
                 //super.afterHookedMethod(param);
             }
         });
-        XposedHelpers.findAndHookMethod("com.luoli.common.oss.OSSManger", classLoader, "init", classLoader.loadClass("com.luoli.common.oss.OSSConfig"), new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-            }
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                //XposedBridge.log(param.args[0].toString());
-                super.afterHookedMethod(param);
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.luoli.common.config.ConfigManger", classLoader, "getConfig", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                //XposedBridge.log(param.getResult().toString());
-                super.afterHookedMethod(param);
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.luoli.common.config.ConfigManger", classLoader, "getSalt", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                //XposedBridge.log(param.getResult().toString());
-                super.afterHookedMethod(param);
-            }
-        });
         XposedHelpers.findAndHookMethod("com.luoli.common.network.interceptor.EncryptInterceptor", classLoader, "convertReqParams", java.lang.String.class, int.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -124,54 +98,5 @@ public class KuanKanHooker implements IXposedHookLoadPackage {
             }
         });
 
-        XposedHelpers.findAndHookMethod("com.lib.encrypt.EncryptLib", classLoader, "keyValue1", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                //XposedBridge.log("key1  " + param.getResult());
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.lib.encrypt.EncryptLib", classLoader, "keyValue2", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                //XposedBridge.log("key2  " + param.getResult());
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.lib.encrypt.EncryptLib", classLoader, "transformation", int.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                //XposedBridge.log("transformation  " + param.getResult());
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.lib.encrypt.EncryptLib", classLoader, "iv", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                //XposedBridge.log("iv  " + param.getResult());
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.lib.encrypt.EncryptLib", classLoader, "config", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                //XposedBridge.log("config  " + param.getResult());
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.lib.encrypt.EncryptLib", classLoader, "algorithm", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                //XposedBridge.log("algorithm  " + param.getResult());
-            }
-        });
-        XposedHelpers.findAndHookMethod("com.lib.encrypt.EncryptLib", classLoader, "baseKey", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                //XposedBridge.log("baseKey  " + param.getResult());
-            }
-        });
     };
 }

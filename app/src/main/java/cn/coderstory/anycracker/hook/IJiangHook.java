@@ -212,6 +212,14 @@ public class IJiangHook implements IXposedHookLoadPackage {
                 super.afterHookedMethod(param);
             }
         });
+        XposedHelpers.findAndHookMethod("com.niming.weipa.e.c", classLoader, "a", java.lang.String.class, java.lang.String.class, java.lang.String.class, classLoader.loadClass("com.niming.weipa.e.a"), new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                for (int i = 0; i < param.args.length; i++) {
+                    XposedBridge.log("param.args[" + i + "] = " + param.args[i].toString() + "\n");
+                }
+            }
+        });
 
     }
     static Map<String,String> cachePool = new HashMap<>();
